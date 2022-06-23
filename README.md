@@ -2,14 +2,14 @@
 NFT Marketplace on the Cardano Blockchain. Powered by Plutus Smart Contracts
 A simple contract that allows sales of NFTs. The seller (owner of an NFT) constructs the contract with parameters unique to the sale and locks the NFT there.
 A buyer can then unlock the NFT by submitting a transaction verifying the several requirements defined in the validator.
-***
+
 ### Test in emulator
 * Clone the repository
 * Run `cabal repl` in the repo
 * Run `:l src/Market/Trace.hs` in the repl
 * Run `test`
 * To modify the testing scenario, open and modify the `src/Market/Trace.hs` file
-***
+
 ### To compile to .plutus code
 * Run cabal run market-plutus
 ### To test against a validator
@@ -25,6 +25,8 @@ A buyer can then unlock the NFT by submitting a transaction verifying the severa
 * I suggest downloading <a href="https://testnets.cardano.org/en/testnets/cardano/get-started/wallet/">Daedalus-testnet</a>
 * Fund the new Daedalus wallet using the testnet faucet at <a href="https://developers.cardano.org/docs/integrate-cardano/testnet-faucet">faucet</a>
 * From daedalus, fund the two cli addresses (`w1` and `w2`) (with the faucet you should get 1000ADA so fund `w1` with 500 and `w2` with 500)
+* ![cardano-cli commands](https://user-images.githubusercontent.com/103255942/175365475-a91d263d-ce00-4be2-ba3a-9d78f4486de4.PNG)
+
 ##### Now we have to mint some tokens (only in w1) that will be the NFTs we sell to test the validator
 * Go in `w1` folder and execute `address=$(cat payment.addr)`
 * Run `cardano-cli query utxo --address $address --$testnet`
@@ -41,16 +43,16 @@ A buyer can then unlock the NFT by submitting a transaction verifying the severa
 * `echo "}" >> policy/policy.script`
 * `cardano-cli transaction policyid --script-file ./policy/policy.script >> policy/policyID`
 * `policyid=$(cat policy/policyID)`
-* `cardano-cli transaction build-raw --fee $fee --tx-in $txhashAda --tx-out $address+$output+"100 $policyid.Vendere" --mint="100 $policyid.Vendere" --minting-script-file policy/policy.script --out-file matx.raw` this will mint 100 Vendere tokens
+* `cardano-cli transaction build-raw --fee $fee --tx-in $txhashAda --tx-out $address+$output+"100 $policyid.Spacetoken" --mint="100 $policyid.Spacetoken" --minting-script-file policy/policy.script --out-file matx.raw` this will mint 100 Spacetoken tokens
 * `fee=$(cardano-cli transaction calculate-min-fee --tx-body-file matx.raw --tx-in-count 1 --tx-out-count 1 --witness-count 1 --$testnet --protocol-params-file protocol.json | cut -d " " -f1)`
 * `output=$(expr $funds - $fee)`
-* `cardano-cli transaction build-raw --fee $fee --tx-in $txhashAda --tx-out $address+$output+"100 $policyid.Vendere" --mint="100 $policyid.Vendere" --minting-script-file policy/policy.script --out-file matx.raw`
+* `cardano-cli transaction build-raw --fee $fee --tx-in $txhashAda --tx-out $address+$output+"100 $policyid.Spacetoken" --mint="100 $policyid.Spacetoken" --minting-script-file policy/policy.script --out-file matx.raw`
 * `cardano-cli transaction sign --signing-key-file payment.skey --signing-key-file policy/policy.skey --$testnet --tx-body-file matx.raw --out-file matx.signed`
 * `cardano-cli transaction submit --tx-file matx.signed --$testnet`
 * `cardano-cli query utxo --address $address --$testnet`
-* Now you should have 100 Vendere tokens at your `w1` wallet (it can take some time to appear). We'll be using those to test our validator
-### Do the following every time you test after completing initial setup above (OUTDATED, new instructions coming soon)
-#### Send NFT to script
+* Now you should have 100 Spacetoken tokens at your `w1` wallet (it can take some time to appear). We'll be using those to test our validator
+#### Do the following every time you test after completing initial setup above (OUTDATED, new instructions coming soon)
+##### Send NFT to script
 * Start a testnet node and see where is node.socket
 * `CARDANO_NODE_SOCKET_PATH=/absolute/path/to/node.socket`
 * `testnet="testnet-magic 1097911063"`
@@ -63,7 +65,7 @@ A buyer can then unlock the NFT by submitting a transaction verifying the severa
 * `txhashAda=< here put the txhash#txid that contains a lot of ada >`
 * `txhashNFT=< here put the txhash#txid that contains the NFT you want to sell, can be same as $txhashAda >`
 * Build the tx
-
+    <pre>
     `cardano-cli transaction build \
         --alonzo-era \
         --$testnet \
@@ -71,23 +73,23 @@ A buyer can then unlock the NFT by submitting a transaction verifying the severa
         --tx-in $txhashNFT \
         --tx-in-collateral $txhashAda \
         --tx-out-datum-hash 45b0cfc220ceec5b7c1c62c4d4193d38e4eba48e8815729ce75f9c0ab0e4c1c0 \
-        --tx-out "$(cat script.addr) + 1724100 lovelace + 1 $policyid.Vendere" \
-        --tx-out "$address + 1724100 lovelace + <amount of vendere tokens left> $policyid.Vendere" \
+        --tx-out "$(cat script.addr) + 1724100 lovelace + 1 $policyid.Spacetoken" \
+        --tx-out "$address + 1724100 lovelace + <amount of Spacetoken tokens left> $policyid.Spacetoken" \
         --change-address $address \
         --protocol-params-file protocol.json \
         --out-file tx.02`.
-    
+    </pre>
 * Sign the tx
-
+    <pre>
     `cardano-cli transaction sign \
         --tx-body-file tx.02 \
         --signing-key-file payment.skey \
         --$testnet \
         --out-file tx-2.02`
-        
+     </pre>
 * Submit the tx : `cardano-cli transaction submit --tx-file tx-2.02 --$testnet`
 * Check the balance in the script, you should see the NFT : `cardano-cli query utxo --address $(cat script.addr) --$testnet`
-####Attempt to unlock NFT
+##### Attempt to unlock NFT
 * I suggest opening a different terminal
 * Copy the `market.plutus` file used previously to `w2` folder
 * Go in `w2` folder
@@ -102,38 +104,30 @@ A buyer can then unlock the NFT by submitting a transaction verifying the severa
 * `w1addr=< here put the addr of w1 >`
 * `keyfile=payment.skey`
 * Build the tx :
-
-`cardano-cli transaction build \
-    --alonzo-era \
-    --testnet-magic 1097911063 \
-    --tx-in $txhashw2 \
-    --tx-in $txhash \
-    --tx-in-script-file market.plutus \
-    --tx-in-datum-file datum.json \
-    --tx-in-redeemer-file redeemer.json \
-    --tx-in-collateral $txhashw2 \
-    --tx-out "$w2addr + $value" \
-    --tx-out "$w1addr + 1000000 lovelace" \
-    --change-address $w2addr \
-    --protocol-params-file protocol.json \
-    --out-file unlock-body.02`
-    
+    <pre>
+    `cardano-cli transaction build \
+        --alonzo-era \
+        --testnet-magic 1097911063 \
+        --tx-in $txhashw2 \
+        --tx-in $txhash \
+        --tx-in-script-file market.plutus \
+        --tx-in-datum-file datum.json \
+        --tx-in-redeemer-file redeemer.json \
+        --tx-in-collateral $txhashw2 \
+        --tx-out "$w2addr + $value" \
+        --tx-out "$w1addr + 1000000 lovelace" \
+        --change-address $w2addr \
+        --protocol-params-file protocol.json \
+        --out-file unlock-body.02`
+    </pre>
 * If there are any validation errors they should pop here. If the build was successful (the ouput should show an estimate of fees) then move on
 * Sign the tx :
-
-`cardano-cli transaction sign \
-    --tx-body-file unlock-body.02 \
-    --signing-key-file payment.skey \
-    --$testnet \
-    --out-file unlock.02`
-    
+    <pre>
+    `cardano-cli transaction sign \
+        --tx-body-file unlock-body.02 \
+        --signing-key-file payment.skey \
+        --$testnet \
+        --out-file unlock.02`
+    </pre>
 * This step should never fail, move on
 * Submit the tx : `cardano-cli transaction submit --tx-file unlock.02 --$testnet` this is where the current error pops. Good luck :) (if you encounter any errors or don't understand something, please ask on discord)
-
-
-## Contract usage
-The Martify contract for marketplaces is being used by several marketplaces currently live on Cardano.
-The list of marketplaces based on our contracts is :
-* https://jpg.store
-* https://martify.io
-* https://filthyrichhorses.com/marketplace
