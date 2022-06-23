@@ -25,7 +25,8 @@ A buyer can then unlock the NFT by submitting a transaction verifying the severa
 * I suggest downloading <a href="https://testnets.cardano.org/en/testnets/cardano/get-started/wallet/">Daedalus-testnet</a>
 * Fund the new Daedalus wallet using the testnet faucet at <a href="https://developers.cardano.org/docs/integrate-cardano/testnet-faucet">faucet</a>
 * From daedalus, fund the two cli addresses (`w1` and `w2`) (with the faucet you should get 1000ADA so fund `w1` with 500 and `w2` with 500)
-* ![cardano-cli commands](https://user-images.githubusercontent.com/103255942/175365475-a91d263d-ce00-4be2-ba3a-9d78f4486de4.PNG)
+![cardano-cli commands2](https://user-images.githubusercontent.com/103255942/175367138-c7d1be38-d6ec-4c93-95cb-e6efbc03e413.png)
+
 
 ##### Now we have to mint some tokens (only in w1) that will be the NFTs we sell to test the validator
 * Go in `w1` folder and execute `address=$(cat payment.addr)`
@@ -77,16 +78,14 @@ A buyer can then unlock the NFT by submitting a transaction verifying the severa
         --tx-out "$address + 1724100 lovelace + <amount of Spacetoken tokens left> $policyid.Spacetoken" \
         --change-address $address \
         --protocol-params-file protocol.json \
-        --out-file tx.02`.
-    </pre>
+        --out-file tx.02`.</pre>
 * Sign the tx
     <pre>
     `cardano-cli transaction sign \
         --tx-body-file tx.02 \
         --signing-key-file payment.skey \
         --$testnet \
-        --out-file tx-2.02`
-     </pre>
+        --out-file tx-2.02`</pre>
 * Submit the tx : `cardano-cli transaction submit --tx-file tx-2.02 --$testnet`
 * Check the balance in the script, you should see the NFT : `cardano-cli query utxo --address $(cat script.addr) --$testnet`
 ##### Attempt to unlock NFT
@@ -118,8 +117,7 @@ A buyer can then unlock the NFT by submitting a transaction verifying the severa
         --tx-out "$w1addr + 1000000 lovelace" \
         --change-address $w2addr \
         --protocol-params-file protocol.json \
-        --out-file unlock-body.02`
-    </pre>
+        --out-file unlock-body.02`</pre>
 * If there are any validation errors they should pop here. If the build was successful (the ouput should show an estimate of fees) then move on
 * Sign the tx :
     <pre>
@@ -127,7 +125,6 @@ A buyer can then unlock the NFT by submitting a transaction verifying the severa
         --tx-body-file unlock-body.02 \
         --signing-key-file payment.skey \
         --$testnet \
-        --out-file unlock.02`
-    </pre>
+        --out-file unlock.02`</pre>
 * This step should never fail, move on
 * Submit the tx : `cardano-cli transaction submit --tx-file unlock.02 --$testnet` this is where the current error pops. Good luck :) (if you encounter any errors or don't understand something, please ask on discord)
