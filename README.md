@@ -139,7 +139,7 @@ The following required to be run on host machine to use PAB with contracts in ho
 * PAB executable connected to node, cardano-wallet and chain-index
 
 ##### Starting cardano node
-Use official cardano node image to run contaner with docker:
+* Use official cardano node image to run contaner with docker:
     <pre>
     `docker run --rm \
       -e NETWORK=testnet \
@@ -147,7 +147,7 @@ Use official cardano node image to run contaner with docker:
       -v "$PWD"/data:/data \
       inputoutput/cardano-node`</pre>
 ##### Starting cardano wallet
-Install cardano wallet and start it.
+* Install cardano wallet and start it.
     <pre>
     `cardano-wallet serve \
       --node-socket $CARDANO_NODE_SOCKET_PATH \
@@ -155,8 +155,8 @@ Install cardano wallet and start it.
       --testnet /path/to/node/configuration/config/alonzo-purple-byron-genesis.json \
       --listen-address 0.0.0.0 \
       --port 8090`</pre>
-##### tart chain-index
-Building chain-index from sources from desired commit of plutus-apps and staring it
+##### Start chain-index
+* Building chain-index from sources from desired commit of plutus-apps and staring it
     `cabal exec -- plutus-chain-index --config testnet/chain-index-config.json --socket-path $HOME/Cardano/db/node.socket start-index`
 ##### Start PAB
     `cabal exec my-dapp -- --config ./my-dapp/plutus-pab.yaml migrate (creates database)`
