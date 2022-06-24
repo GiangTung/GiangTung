@@ -13,7 +13,7 @@ A buyer can then unlock the NFT by submitting a transaction verifying the severa
 ### To compile to .plutus code
 * Run cabal run market-plutus
 ### To test against a validator
-#### Do the following only the first time
+#### How to use (Do the following only the first time)
 * Start a testnet node a note where is the node.socket file
 * `CARDANO_NODE_SOCKET_PATH=/absolute/path/to/node.socket`
 * `testnet="testnet-magic 1097911063"`
@@ -26,7 +26,6 @@ A buyer can then unlock the NFT by submitting a transaction verifying the severa
 * Fund the new Daedalus wallet using the testnet faucet at <a href="https://developers.cardano.org/docs/integrate-cardano/testnet-faucet">faucet</a>
 * From daedalus, fund the two cli addresses (`w1` and `w2`) (with the faucet you should get 1000ADA so fund `w1` with 500 and `w2` with 500)
 ![cardano-cli commands2](https://user-images.githubusercontent.com/103255942/175367138-c7d1be38-d6ec-4c93-95cb-e6efbc03e413.png)
-
 
 ##### Now we have to mint some tokens (only in w1) that will be the NFTs we sell to test the validator
 * Go in `w1` folder and execute `address=$(cat payment.addr)`
@@ -52,7 +51,7 @@ A buyer can then unlock the NFT by submitting a transaction verifying the severa
 * `cardano-cli transaction submit --tx-file matx.signed --$testnet`
 * `cardano-cli query utxo --address $address --$testnet`
 * Now you should have 100 Spacetoken tokens at your `w1` wallet (it can take some time to appear). We'll be using those to test our validator
-#### Do the following every time you test after completing initial setup above (OUTDATED, new instructions coming soon)
+#### Example uses (Do the following every time you test after completing initial setup above)
 ##### Send NFT to script
 * Start a testnet node and see where is node.socket
 * `CARDANO_NODE_SOCKET_PATH=/absolute/path/to/node.socket`
@@ -128,3 +127,37 @@ A buyer can then unlock the NFT by submitting a transaction verifying the severa
         --out-file unlock.02`</pre>
 * This step should never fail, move on
 * Submit the tx : `cardano-cli transaction submit --tx-file unlock.02 --$testnet` this is where the current error pops. Good luck :) (if you encounter any errors or don't understand something, please ask on discord)
+
+#### How to host using PAB server
+This document describes how to prepare hosted PAB deployment from scratch that can operate on Alonzo purple testnet.
+
+The following required to be run on host machine to use PAB with contracts in hosted scenario on testnet :
+
+* Cardano node connected to Alonzo testnet
+* cardano wallet connected to node
+* chain-index connected to node
+* PAB executable connected to node, cardano-wallet and chain-index
+
+##### Starting cardano node
+Use official cardano node image to run contaner with docker:
+    <pre>
+    `docker run --rm \
+      -e NETWORK=testnet \
+      -v "$PWD"/socket:/ipc \
+      -v "$PWD"/data:/data \
+      inputoutput/cardano-node`</pre>
+##### Starting cardano wallet
+Install cardano wallet and start it.
+    <pre>
+    `cardano-wallet serve \
+      --node-socket $CARDANO_NODE_SOCKET_PATH \
+      --database /path/to/wallet/database \
+      --testnet /path/to/node/configuration/config/alonzo-purple-byron-genesis.json \
+      --listen-address 0.0.0.0 \
+      --port 8090`</pre>
+##### tart chain-index
+Building chain-index from sources from desired commit of plutus-apps and staring it
+    `cabal exec -- plutus-chain-index --config testnet/chain-index-config.json --socket-path $HOME/Cardano/db/node.socket start-index`
+##### Start PAB
+    `cabal exec my-dapp -- --config ./my-dapp/plutus-pab.yaml migrate (creates database)`
+    `cabal exec my-dapp -- --config ./my-dapp/plutus-pab.yaml --passphrase WALLET_PASSPHRASE webserver`
